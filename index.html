@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Japanese Learning App</title>
+  <style>
+    :root {
+      --primary-color: #4a6da7;
+      --secondary-color: #f0f4f8;
+      --accent-color: #ff6b6b;
+      --text-color: #333;
+      --light-text: #666;
+      --border-color: #ddd;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background-color: var(--secondary-color);
+      color: var(--text-color);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      flex: 1;
+    }
+    
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: var(--primary-color);
+    }
+    
+    .settings-panel {
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+    
+    .panel-title {
+      font-size: 18px;
+      margin-bottom: 15px;
+      color: var(--primary-color);
+      font-weight: bold;
+    }
+    
+    .checkboxes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .mode-toggle {
+      display: flex;
+      background-color: var(--border-color);
+      border-radius: 30px;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .mode-toggle button {
+      flex: 1;
+      background: none;
+      border: none;
+      padding: 12px 20px;
+      cursor: pointer;
+      position: relative;
+      z-index: 2;
+      font-weight: bold;
+      color: var(--light-text);
+      transition: color 0.3s;
+    }
+    
+    .mode-toggle button.active {
+      color: white;
+    }
+    
+    .slider {
+      position: absolute;
+      height: 100%;
+      width: 50%;
+      background-color: var(--primary-color);
+      border-radius: 30px;
+      top: 0;
+      left: 0;
+      transition: transform 0.3s ease;
+    }
+    
+    .mode-toggle.english-to-japanese .slider {
+      transform: translateX(0);
+    }
+    
+    .mode-toggle.japanese-to-english .slider {
+      transform: translateX(100%);
+    }
+    
+    .learning-area {
+      background-color: white;
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .learning-content {
+      display: flex;
+      flex-direction: row;
+      gap: 30px;
+    }
+    
+    .question-answer-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    
+    .character-display {
+      font-size: 50px;
+      margin-bottom: 20px;
+      text-align: center;
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--secondary-color);
+      border-radius: 8px;
+      padding: 10px;
+    }
+    
+    .answer-display {
+      font-size: 50px;
+      text-align: center;
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--secondary-color);
+      border-radius: 8px;
+      padding: 10px;
+    }
+    
+    .drawing-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .drawing-area {
+      width: 100%;
+      height: 180px;
+      border: 2px dashed var(--border-color);
+      border-radius: 8px;
+      touch-action: none;
+      margin-bottom: 10px;
+    }
+    
+    .drawing-controls {
+      display: flex;
+      width: 100%;
+      justify-content: center;
+    }
+    
+    .action-button {
+      width: 100%;
+      text-align: center;
+      margin-top: 20px;
+    }
+    
+    button {
+      padding: 12px 25px;
+      border-radius: 30px;
+      border: none;
+      background-color: var(--primary-color);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    button:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+    
+    button:disabled {
+      background-color: var(--border-color);
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .start-btn {
+      background-color: transparent;
+      border: 2px solid var(--primary-color);
+      color: var(--primary-color);
+    }
+    
+    .start-btn.filled {
+      background-color: var(--primary-color);
+      color: white;
+    }
+    
+    .reveal-btn {
+      background-color: var(--accent-color);
+    }
+    
+    .next-btn {
+      background-color: var(--primary-color);
+    }
+    
+    .clear-btn {
+      background-color: var(--light-text);
+      margin-right: 10px;
+    }
+    
+    .content-type-toggle {
+      display: flex;
+      margin-bottom: 20px;
+      background-color: var(--border-color);
+      border-radius: 30px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .content-type-toggle button {
+      flex: 1;
+      background: none;
+      border: none;
+      padding: 12px 20px;
+      cursor: pointer;
+      position: relative;
+      z-index: 2;
+      font-weight: bold;
+      color: var(--light-text);
+      transition: color 0.3s;
+    }
+    
+    .content-type-toggle button.active {
+      color: white;
+    }
+    
+    .content-slider {
+      position: absolute;
+      height: 100%;
+      width: 50%;
+      background-color: var(--primary-color);
+      border-radius: 30px;
+      top: 0;
+      left: 0;
+      transition: transform 0.3s ease;
+    }
+    
+    .content-type-toggle.characters .content-slider {
+      transform: translateX(0);
+    }
+    
+    .content-type-toggle.sentences .content-slider {
+      transform: translateX(100%);
+    }
+    
+    .panel-subtitle {
+      font-size: 16px;
+      margin: 15px 0 10px;
+      color: var(--light-text);
+    }
+    
+    @media (max-width: 768px) {
+      .learning-content {
+        flex-direction: column;
+      }
+      
+      .character-display, .answer-display {
+        font-size: 40px;
+        min-height: 60px;
+      }
+      
+      .drawing-area {
+        height: 150px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Japanese Learning App</h1>
+    
+    <div class="settings-panel">
+      <div class="panel-title">Settings</div>
+      
+      <div class="content-type-toggle characters">
+        <button class="active" id="characters-btn">Characters</button>
+        <button id="sentences-btn">Sentences</button>
+        <div class="content-slider"></div>
+      </div>
+      
+      <div id="characters-section">
+        <div class="panel-subtitle">Select Character Sets:</div>
+        <div class="checkboxes">
+          <div class="checkbox-item">
+            <input type="checkbox" id="hiragana" checked>
+            <label for="hiragana">Hiragana</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" id="katakana">
+            <label for="katakana">Katakana</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" id="kanji-n5">
+            <label for="kanji-n5">Kanji N5</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" id="kanji-n4">
+            <label for="kanji-n4">Kanji N4</label>
+          </div>
+        </div>
+      </div>
+      
+      <div id="sentences-section" style="display: none;">
+        <div class="panel-subtitle">Select Sentence Types:</div>
+        <div class="checkboxes">
+          <div class="checkbox-item">
+            <input type="checkbox" id="basic" checked>
+            <label for="basic">Basic</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" id="intermediate">
+            <label for="intermediate">Intermediate</label>
+          </div>
+        </div>
+      </div>
+      
+      <div class="panel-subtitle">Learning Mode:</div>
+      <div class="mode-toggle english-to-japanese">
+        <button class="active" id="en-to-jp">English to Japanese</button>
+        <button id="jp-to-en">Japanese to English</button>
+        <div class="slider"></div>
+      </div>
+      
+      <button id="start-btn" class="start-btn filled">Start Learning</button>
+    </div>
+    
+    <div class="learning-area">
+      <div class="learning-content">
+        <div class="question-answer-area">
+          <div class="character-display" id="display"></div>
+          <div class="answer-display" id="answer"></div>
+        </div>
+        <div class="drawing-container">
+          <canvas id="drawing-area" class="drawing-area"></canvas>
+          <div class="drawing-controls">
+            <button id="clear-btn" class="clear-btn" disabled>Clear Drawing</button>
+          </div>
+        </div>
+      </div>
+      <div class="action-button">
+        <button id="action-btn" class="reveal-btn" disabled>Reveal Answer</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Japanese characters and sentences database
+    const japaneseData = {
+      hiragana: [
+        { japanese: 'あ', english: 'a' },
+        { japanese: 'い', english: 'i' },
+        { japanese: 'う', english: 'u' },
+        { japanese: 'え', english: 'e' },
+        { japanese: 'お', english: 'o' },
+        { japanese: 'か', english: 'ka' },
+        { japanese: 'き', english: 'ki' },
+        { japanese: 'く', english: 'ku' },
+        { japanese: 'け', english: 'ke' },
+        { japanese: 'こ', english: 'ko' },
+        { japanese: 'さ', english: 'sa' },
+        { japanese: 'し', english: 'shi' },
+        { japanese: 'す', english: 'su' },
+        { japanese: 'せ', english: 'se' },
+        { japanese: 'そ', english: 'so' },
+        { japanese: 'た', english: 'ta' },
+        { japanese: 'ち', english: 'chi' },
+        { japanese: 'つ', english: 'tsu' },
+        { japanese: 'て', english: 'te' },
+        { japanese: 'と', english: 'to' },
+        { japanese: 'な', english: 'na' },
+        { japanese: 'に', english: 'ni' },
+        { japanese: 'ぬ', english: 'nu' },
+        { japanese: 'ね', english: 'ne' },
+        { japanese: 'の', english: 'no' },
+        { japanese: 'は', english: 'ha' },
+        { japanese: 'ひ', english: 'hi' },
+        { japanese: 'ふ', english: 'fu' },
+        { japanese: 'へ', english: 'he' },
+        { japanese: 'ほ', english: 'ho' },
+        { japanese: 'ま', english: 'ma' },
+        { japanese: 'み', english: 'mi' },
+        { japanese: 'む', english: 'mu' },
+        { japanese: 'め', english: 'me' },
+        { japanese: 'も', english: 'mo' },
+        { japanese: 'や', english: 'ya' },
+        { japanese: 'ゆ', english: 'yu' },
+        { japanese: 'よ', english: 'yo' },
+        { japanese: 'ら', english: 'ra' },
+        { japanese: 'り', english: 'ri' },
+        { japanese: 'る', english: 'ru' },
+        { japanese: 'れ', english: 're' },
+        { japanese: 'ろ', english: 'ro' },
+        { japanese: 'わ', english: 'wa' },
+        { japanese: 'を', english: 'wo' },
+        { japanese: 'ん', english: 'n' }
+      ],
+      katakana: [
+        { japanese: 'ア', english: 'a' },
+        { japanese: 'イ', english: 'i' },
+        { japanese: 'ウ', english: 'u' },
+        { japanese: 'エ', english: 'e' },
+        { japanese: 'オ', english: 'o' },
+        { japanese: 'カ', english: 'ka' },
+        { japanese: 'キ', english: 'ki' },
+        { japanese: 'ク', english: 'ku' },
+        { japanese: 'ケ', english: 'ke' },
+        { japanese: 'コ', english: 'ko' },
+        { japanese: 'サ', english: 'sa' },
+        { japanese: 'シ', english: 'shi' },
+        { japanese: 'ス', english: 'su' },
+        { japanese: 'セ', english: 'se' },
+        { japanese: 'ソ', english: 'so' },
+        { japanese: 'タ', english: 'ta' },
+        { japanese: 'チ', english: 'chi' },
+        { japanese: 'ツ', english: 'tsu' },
+        { japanese: 'テ', english: 'te' },
+        { japanese: 'ト', english: 'to' },
+        { japanese: 'ナ', english: 'na' },
+        { japanese: 'ニ', english: 'ni' },
+        { japanese: 'ヌ', english: 'nu' },
+        { japanese: 'ネ', english: 'ne' },
+        { japanese: 'ノ', english: 'no' },
+        { japanese: 'ハ', english: 'ha' },
+        { japanese: 'ヒ', english: 'hi' },
+        { japanese: 'フ', english: 'fu' },
+        { japanese: 'ヘ', english: 'he' },
+        { japanese: 'ホ', english: 'ho' },
+        { japanese: 'マ', english: 'ma' },
+        { japanese: 'ミ', english: 'mi' },
+        { japanese: 'ム', english: 'mu' },
+        { japanese: 'メ', english: 'me' },
+        { japanese: 'モ', english: 'mo' },
+        { japanese: 'ヤ', english: 'ya' },
+        { japanese: 'ユ', english: 'yu' },
+        { japanese: 'ヨ', english: 'yo' },
+        { japanese: 'ラ', english: 'ra' },
+        { japanese: 'リ', english: 'ri' },
+        { japanese: 'ル', english: 'ru' },
+        { japanese: 'レ', english: 're' },
+        { japanese: 'ロ', english: 'ro' },
+        { japanese: 'ワ', english: 'wa' },
+        { japanese: 'ヲ', english: 'wo' },
+        { japanese: 'ン', english: 'n' }
+      ],
+      kanjiN5: [
+        { japanese: '一', english: 'one' },
+        { japanese: '二', english: 'two' },
+        { japanese: '三', english: 'three' },
+        { japanese: '四', english: 'four' },
+        { japanese: '五', english: 'five' },
+        { japanese: '六', english: 'six' },
+        { japanese: '七', english: 'seven' },
+        { japanese: '八', english: 'eight' },
+        { japanese: '九', english: 'nine' },
+        { japanese: '十', english: 'ten' },
+        { japanese: '百', english: 'hundred' },
+        { japanese: '千', english: 'thousand' },
+        { japanese: '万', english: 'ten thousand' },
+        { japanese: '日', english: 'day, sun' },
+        { japanese: '月', english: 'month, moon' }
+      ],
+      kanjiN4: [
+        { japanese: '悪', english: 'bad, evil' },
+        { japanese: '安', english: 'peaceful, cheap' },
+        { japanese: '暗', english: 'dark' },
+        { japanese: '医', english: 'doctor, medicine' },
+        { japanese: '意', english: 'mind, heart' },
+        { japanese: '引', english: 'pull' },
+        { japanese: '院', english: 'institution' },
+        { japanese: '運', english: 'fortune, transport' },
+        { japanese: '泳', english: 'swim' },
+        { japanese: '駅', english: 'station' }
+      ],
+      basicSentences: [
+        { japanese: 'おはようございます', english: 'Good morning' },
+        { japanese: 'こんにちは', english: 'Hello' },
+        { japanese: 'こんばんは', english: 'Good evening' },
+        { japanese: 'ありがとうございます', english: 'Thank you' },
+        { japanese: 'すみません', english: 'Excuse me/Sorry' },
+        { japanese: 'はじめまして', english: 'Nice to meet you' },
+        { japanese: 'お元気ですか', english: 'How are you?' },
+        { japanese: '私の名前は田中です', english: 'My name is Tanaka' },
+        { japanese: 'いただきます', english: 'Thank you for the food (before eating)' },
+        { japanese: 'ごちそうさまでした', english: 'Thank you for the meal (after eating)' }
+      ],
+      intermediateSentences: [
+        { japanese: '日本語を勉強しています', english: 'I am studying Japanese' },
+        { japanese: '東京に住んでいます', english: 'I live in Tokyo' },
+        { japanese: '明日雨が降るでしょう', english: 'It will probably rain tomorrow' },
+        { japanese: '映画を見に行きましょう', english: 'Let\'s go see a movie' },
+        { japanese: '何時に起きますか', english: 'What time do you wake up?' },
+        { japanese: '駅はどこですか', english: 'Where is the station?' },
+        { japanese: 'お手洗いはどこですか', english: 'Where is the restroom?' },
+        { japanese: '日本に行ったことがありますか', english: 'Have you ever been to Japan?' },
+        { japanese: '彼女は英語を話せます', english: 'She can speak English' },
+        { japanese: '先週私は忙しかったです', english: 'I was busy last week' }
+      ]
+    };
+
+    // DOM Elements
+    const charactersBtn = document.getElementById('characters-btn');
+    const sentencesBtn = document.getElementById('sentences-btn');
+    const charactersSection = document.getElementById('characters-section');
+    const sentencesSection = document.getElementById('sentences-section');
+    const contentTypeToggle = document.querySelector('.content-type-toggle');
+    
+    const hiraganaCheckbox = document.getElementById('hiragana');
+    const katakanaCheckbox = document.getElementById('katakana');
+    const kanjiN5Checkbox = document.getElementById('kanji-n5');
+    const kanjiN4Checkbox = document.getElementById('kanji-n4');
+    const basicCheckbox = document.getElementById('basic');
+    const intermediateCheckbox = document.getElementById('intermediate');
+    
+    const enToJpBtn = document.getElementById('en-to-jp');
+    const jpToEnBtn = document.getElementById('jp-to-en');
+    const modeToggle = document.querySelector('.mode-toggle');
+    
+    const startBtn = document.getElementById('start-btn');
+    const actionBtn = document.getElementById('action-btn');
+    const clearBtn = document.getElementById('clear-btn');
+    
+    const display = document.getElementById('display');
+    const answerDisplay = document.getElementById('answer');
+    const canvas = document.getElementById('drawing-area');
+    const ctx = canvas.getContext('2d');
+    
+    // State
+    let currentItem = null;
+    let isEnglishToJapanese = true;
+    let isCharacterMode = true;
+    let isDrawing = false;
+    let lastX = 0;
+    let lastY = 0;
+    let isRevealed = false;
+    
+    // Initialize canvas size
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+      ctx.lineWidth = 3;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = '#000';
+    }
+    
+    // Drawing functions
+    function startDrawing(e) {
+      isDrawing = true;
+      [lastX, lastY] = getCoordinates(e);
+    }
+    
+    function stopDrawing() {
+      isDrawing = false;
+    }
+    
+    function draw(e) {
+      if (!isDrawing) return;
+      
+      e.preventDefault();
+      
+      const [currentX, currentY] = getCoordinates(e);
+      
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(currentX, currentY);
+      ctx.stroke();
+      
+      [lastX, lastY] = [currentX, currentY];
+    }
+    
+    function getCoordinates(e) {
+      const rect = canvas.getBoundingClientRect();
+      const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+      const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
+      return [x, y];
+    }
+    
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    
+    // Get random item based on selected options
+    function getRandomItem() {
+      let selectedData = [];
+      
+      if (isCharacterMode) {
+        if (hiraganaCheckbox.checked) selectedData = selectedData.concat(japaneseData.hiragana);
+        if (katakanaCheckbox.checked) selectedData = selectedData.concat(japaneseData.katakana);
+        if (kanjiN5Checkbox.checked) selectedData = selectedData.concat(japaneseData.kanjiN5);
+        if (kanjiN4Checkbox.checked) selectedData = selectedData.concat(japaneseData.kanjiN4);
+      } else {
+        if (basicCheckbox.checked) selectedData = selectedData.concat(japaneseData.basicSentences);
+        if (intermediateCheckbox.checked) selectedData = selectedData.concat(japaneseData.intermediateSentences);
+      }
+      
+      if (selectedData.length === 0) return null;
+      
+      const randomIndex = Math.floor(Math.random() * selectedData.length);
+      return selectedData[randomIndex];
+    }
+    
+    // Update display based on current mode
+    function updateDisplay() {
+      if (!currentItem) return;
+      
+      if (isEnglishToJapanese) {
+        display.textContent = currentItem.english;
+      } else {
+        display.textContent = currentItem.japanese;
+      }
+      
+      answerDisplay.textContent = '';
+      clearCanvas();
+      isRevealed = false;
+      actionBtn.textContent = "Reveal Answer";
+      actionBtn.className = "reveal-btn";
+    }
+    
+    // Handle action button (Reveal/Next)
+    function handleAction() {
+      if (!currentItem) return;
+      
+      if (!isRevealed) {
+        // Reveal answer
+        if (isEnglishToJapanese) {
+          answerDisplay.textContent = currentItem.japanese;
+        } else {
+          answerDisplay.textContent = currentItem.english;
+        }
+        
+        actionBtn.textContent = "Next →";
+        actionBtn.className = "next-btn";
+        isRevealed = true;
+      } else {
+        // Next item
+        currentItem = getRandomItem();
+        updateDisplay();
+      }
+    }
+    
+    // Start learning session
+    function startLearning() {
+      currentItem = getRandomItem();
+      
+      if (currentItem) {
+        updateDisplay();
+        actionBtn.disabled = false;
+        clearBtn.disabled = false;
+        startBtn.textContent = 'Restart';
+      } else {
+        display.textContent = 'Please select at least one option';
+        answerDisplay.textContent = '';
+        actionBtn.disabled = true;
+        clearBtn.disabled = true;
+      }
+    }
+    
+    // Update button states when options change
+    function updateStartButton() {
+      display.textContent = '';
+      answerDisplay.textContent = '';
+      actionBtn.disabled = true;
+      clearBtn.disabled = true;
+      startBtn.classList.add('filled');
+    }
+    
+    // Event Listeners
+    window.addEventListener('resize', resizeCanvas);
+    
+    // Canvas drawing events
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('touchstart', startDrawing);
+    
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('touchmove', draw);
+    
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('touchend', stopDrawing);
+    canvas.addEventListener('mouseout', stopDrawing);
+    
+    // Content type toggle
+    charactersBtn.addEventListener('click', () => {
+      contentTypeToggle.classList.remove('sentences');
+      contentTypeToggle.classList.add('characters');
+      charactersBtn.classList.add('active');
+      sentencesBtn.classList.remove('active');
+      charactersSection.style.display = 'block';
+      sentencesSection.style.display = 'none';
+      isCharacterMode = true;
+      updateStartButton();
+    });
+    
+    sentencesBtn.addEventListener('click', () => {
+      contentTypeToggle.classList.remove('characters');
+      contentTypeToggle.classList.add('sentences');
+      sentencesBtn.classList.add('active');
+      charactersBtn.classList.remove('active');
+      sentencesSection.style.display = 'block';
+      charactersSection.style.display = 'none';
+      isCharacterMode = false;
+      updateStartButton();
+    });
+    
+    // Mode toggle
+    enToJpBtn.addEventListener('click', () => {
+      modeToggle.classList.remove('japanese-to-english');
+      modeToggle.classList.add('english-to-japanese');
+      enToJpBtn.classList.add('active');
+      jpToEnBtn.classList.remove('active');
+      isEnglishToJapanese = true;
+      updateStartButton();
+    });
+    
+    jpToEnBtn.addEventListener('click', () => {
+      modeToggle.classList.remove('english-to-japanese');
+      modeToggle.classList.add('japanese-to-english');
+      jpToEnBtn.classList.add('active');
+      enToJpBtn.classList.remove('active');
+      isEnglishToJapanese = false;
+      updateStartButton();
+    });
+    
+    // Checkboxes
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', updateStartButton);
+    });
+    
+    // Buttons
+    startBtn.addEventListener('click', startLearning);
+    actionBtn.addEventListener('click', handleAction);
+    clearBtn.addEventListener('click', clearCanvas);
+    
+    // Initialize
+    resizeCanvas();
+  </script>
+</body>
+</html>
